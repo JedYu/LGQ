@@ -18,7 +18,6 @@ import com.amap.api.maps2d.AMap;
 import com.amap.api.maps2d.LocationSource;
 import com.amap.api.maps2d.MapView;
 import com.amap.api.maps2d.model.LatLng;
-import com.amap.api.maps2d.model.Marker;
 import com.amap.api.maps2d.model.Polygon;
 import com.amap.api.maps2d.model.PolygonOptions;
 
@@ -31,13 +30,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
 import java.util.List;
 
 import li.vane.ex.lgq.bean.LGQ;
 import li.vane.ex.lgq.bean.PolygonPoint;
 
 
-public class MainActivity extends ActionBarActivity implements LocationSource, AMapLocationListener, AMap.OnMarkerClickListener
+public class MainActivity extends ActionBarActivity implements LocationSource, AMapLocationListener, AMap.OnMapClickListener
 {
     private static final String TAG = MainActivity.class.getSimpleName();
     private AMap mAMap;
@@ -45,6 +45,8 @@ public class MainActivity extends ActionBarActivity implements LocationSource, A
     private LocationSource.OnLocationChangedListener mListener;
 
     private LocationManagerProxy mLocationManagerProxy;
+
+    private List<Polygon> mLgqPolygons = new ArrayList<Polygon>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -95,17 +97,25 @@ public class MainActivity extends ActionBarActivity implements LocationSource, A
             Polygon polygon = mAMap.addPolygon(options.strokeWidth(1f)
                     .strokeColor(Color.parseColor("#FFCCCCCC")).fillColor(Color.parseColor("#9900FF00")));
 
+            mLgqPolygons.add(polygon);
         }
 
-        mAMap.setOnMarkerClickListener(this);
+        mAMap.setOnMapClickListener(this);
 
     }
 
     @Override
-    public boolean onMarkerClick(final Marker marker) {
+    public void onMapClick(LatLng point)
+    {
+        for (Polygon p :mLgqPolygons)
+        {
+            if (p.contains(point))
+            {
+                p.setFillColor(Color.parseColor("#99FFFF00"));
 
-        Log.d(TAG, "你点击的是" + marker.getTitle());
-        return false;
+                mAMap.postInvalidate();
+            }
+        }
     }
 
     @Override
