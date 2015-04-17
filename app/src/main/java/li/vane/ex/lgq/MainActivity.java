@@ -127,7 +127,7 @@ public class MainActivity extends ActionBarActivity implements BDLocationListene
 
         mUIHandler = new Handler(getMainLooper());
         Log.d(TAG, "------onCreate------");
-        //loadDBF();
+        loadDBF();
         mMapView = (MapView) findViewById(R.id.map);
         mBaiduMap = mMapView.getMap();
 
@@ -263,7 +263,7 @@ public class MainActivity extends ActionBarActivity implements BDLocationListene
 
     private void loadDBF()
     {
-        LGQ lgq = LGQ.load(LGQ.class, 0);
+        LGQ lgq = LGQ.load(LGQ.class, 1);
         if (null != lgq)
         {
             return;
