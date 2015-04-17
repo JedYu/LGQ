@@ -5,8 +5,11 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.TextView;
 
 import com.activeandroid.query.Select;
 import com.baidu.location.BDLocation;
@@ -15,10 +18,13 @@ import com.baidu.location.LocationClient;
 import com.baidu.location.LocationClientOption;
 import com.baidu.mapapi.SDKInitializer;
 import com.baidu.mapapi.map.BaiduMap;
+import com.baidu.mapapi.map.BitmapDescriptor;
+import com.baidu.mapapi.map.BitmapDescriptorFactory;
 import com.baidu.mapapi.map.MapStatus;
 import com.baidu.mapapi.map.MapStatusUpdate;
 import com.baidu.mapapi.map.MapStatusUpdateFactory;
 import com.baidu.mapapi.map.MapView;
+import com.baidu.mapapi.map.MarkerOptions;
 import com.baidu.mapapi.map.MyLocationData;
 import com.baidu.mapapi.map.OverlayOptions;
 import com.baidu.mapapi.map.Polygon;
@@ -49,8 +55,10 @@ public class MainActivity extends ActionBarActivity implements BDLocationListene
     private BaiduMap mBaiduMap = null;
     public LocationClient mLocationClient = null;
     private Handler mUIHandler = null;
+    private LayoutInflater mInflater = null;
 
     private List<Polygon> mLgqPolygons = new ArrayList<Polygon>();
+
 
     private static final LatLng CENTER = new LatLng(29.912988, 121.478965);
 
@@ -114,11 +122,12 @@ public class MainActivity extends ActionBarActivity implements BDLocationListene
         super.onCreate(savedInstanceState);
         SDKInitializer.initialize(getApplicationContext());
 
+        mInflater = getLayoutInflater();
         setContentView(R.layout.activity_main);
 
         mUIHandler = new Handler(getMainLooper());
         Log.d(TAG, "------onCreate------");
-        loadDBF();
+        //loadDBF();
         mMapView = (MapView) findViewById(R.id.map);
         mBaiduMap = mMapView.getMap();
 
@@ -211,12 +220,27 @@ public class MainActivity extends ActionBarActivity implements BDLocationListene
             List<PolygonPoint> points = lgq.polygon();
             int numPoints = points.size();
 
-            for (int i = 0; i < numPoints; i=i+5)
+            for (int i = 0; i < numPoints; i=i+3)
             {
-                pts.add(new LatLng(points.get(i).lat, points.get(i).lng));
+
+                Log.d(TAG, "Id:" + points.get(i).getId());
+                LatLng ll = new LatLng(points.get(i).lat, points.get(i).lng);
+                pts.add(ll);
+
+                View view = mInflater.inflate(R.layout.layout_text_marker, null);
+                TextView t = (TextView) view.findViewById(R.id.label);
+                t.setText(i + 1 + "");
+
+                BitmapDescriptor bdA = BitmapDescriptorFactory.fromView(view);
+                OverlayOptions options = new MarkerOptions()
+                        .position(ll)  //设置marker的位置
+                        .icon(bdA)  //设置marker图标
+                        .draggable(true);  //设置手势拖拽
+
+                mBaiduMap.addOverlay(options);
             }
 
-            pts.add(new LatLng(points.get(0).lat, points.get(0).lng));
+
 
             OverlayOptions polygonOption = new PolygonOptions()
                     .points(pts)
@@ -233,6 +257,7 @@ public class MainActivity extends ActionBarActivity implements BDLocationListene
     public static List<LGQ> getAll() {
         return new Select()
                 .from(LGQ.class)
+                .orderBy("id ASC")
                 .execute();
     }
 
