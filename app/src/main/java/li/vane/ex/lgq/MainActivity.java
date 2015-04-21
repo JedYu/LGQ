@@ -9,8 +9,12 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.Button;
+import android.widget.ListView;
 import android.widget.TextView;
 
+import com.activeandroid.query.From;
 import com.activeandroid.query.Select;
 import com.baidu.location.BDLocation;
 import com.baidu.location.BDLocationListener;
@@ -18,13 +22,11 @@ import com.baidu.location.LocationClient;
 import com.baidu.location.LocationClientOption;
 import com.baidu.mapapi.SDKInitializer;
 import com.baidu.mapapi.map.BaiduMap;
-import com.baidu.mapapi.map.BitmapDescriptor;
-import com.baidu.mapapi.map.BitmapDescriptorFactory;
+import com.baidu.mapapi.map.MapPoi;
 import com.baidu.mapapi.map.MapStatus;
 import com.baidu.mapapi.map.MapStatusUpdate;
 import com.baidu.mapapi.map.MapStatusUpdateFactory;
 import com.baidu.mapapi.map.MapView;
-import com.baidu.mapapi.map.MarkerOptions;
 import com.baidu.mapapi.map.MyLocationData;
 import com.baidu.mapapi.map.OverlayOptions;
 import com.baidu.mapapi.map.Polygon;
@@ -42,8 +44,10 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
+import li.vane.ex.lgq.adapter.MenuAdapter;
 import li.vane.ex.lgq.bean.LGQ;
 import li.vane.ex.lgq.bean.PolygonPoint;
 
@@ -56,11 +60,16 @@ public class MainActivity extends ActionBarActivity implements BDLocationListene
     public LocationClient mLocationClient = null;
     private Handler mUIHandler = null;
     private LayoutInflater mInflater = null;
+    private ListView mCountiesListView;
+    private ListView mLevelsListView;
+    private MenuAdapter  mCountiesAdapter;
+    private MenuAdapter  mLevelsAdapter;
 
     private List<Polygon> mLgqPolygons = new ArrayList<Polygon>();
 
-
     private static final LatLng CENTER = new LatLng(29.912988, 121.478965);
+    private String[] mCounties = {"全部", "海曙区", "江东区", "江北区", "北仑区", "镇海区", "鄞州区", "象山县", "宁海县", "余姚市", "慈溪市", "奉化市"};
+    private String[] mLevels = {"全部", "省级", "市级", "县级", "后备"};
 
 
     private BaiduMap.OnMapStatusChangeListener mMapStatusChangeListener = new BaiduMap.OnMapStatusChangeListener()
@@ -114,8 +123,6 @@ public class MainActivity extends ActionBarActivity implements BDLocationListene
     };
 
 
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
@@ -133,9 +140,43 @@ public class MainActivity extends ActionBarActivity implements BDLocationListene
 
         initMap();
 
-        Log.d(TAG, "------ onCreate end------");
+        initMenu();
+
+        Button btnSearch = (Button) findViewById(R.id.search);
+        btnSearch.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                List<LGQ> lgqs = searchLgq(mCountiesAdapter.getSelected(), mLevelsAdapter.getSelected());
+                Log.d(TAG, "searchLgq:" + lgqs.size());
+                mBaiduMap.clear();
+                addLgqPolygons(lgqs);
+            }
+        });
     }
 
+    private List<LGQ> searchLgq(int county, int level)
+    {
+        From query = new Select().from(LGQ.class);
+        if (0 != county)
+        {
+            Log.d(TAG, "filter county by " + mCounties[county]);
+            String clause = "County LIKE '%" + mCounties[county] + "%'";
+            query = query.where(clause);
+
+        }
+
+        if (0 != level)
+        {
+            Log.d(TAG, "filter level by " + mLevels[level]);
+
+            String clause = "Level LIKE '%" + mLevels[level] + "%'";
+            query = query.where(clause);
+        }
+
+        return query.orderBy("id ASC").execute();
+    }
 
     private void initMap()
     {
@@ -167,28 +208,80 @@ public class MainActivity extends ActionBarActivity implements BDLocationListene
         mBaiduMap.animateMapStatus(u);
 
 
-
         mBaiduMap.setOnMapLoadedCallback(new BaiduMap.OnMapLoadedCallback()
         {
             @Override
             public void onMapLoaded()
             {
 
-                Log.d(TAG, "------ onMapLoaded------");
-                new Thread(new Runnable()
-                {
-                    @Override
-                    public void run()
-                    {
-                        addLgqPolygons();
-                    }
-                }).start();
-                Log.d(TAG, "------ onMapLoaded end------");
+//                Log.d(TAG, "------ onMapLoaded------");
+//                new Thread(new Runnable()
+//                {
+//                    @Override
+//                    public void run()
+//                    {
+//                        addLgqPolygons();
+//                    }
+//                }).start();
+//                Log.d(TAG, "------ onMapLoaded end------");
+            }
+        });
 
 
+        mBaiduMap.setOnMapClickListener(new BaiduMap.OnMapClickListener()
+        {
+            @Override
+            public void onMapClick(LatLng latLng)
+            {
+                //SpatialRelationUtil.isPolygonContainsPoint()
+                Log.d(TAG, "onMapClick");
+            }
+
+            @Override
+            public boolean onMapPoiClick(MapPoi mapPoi)
+            {
+                Log.d(TAG, "onMapPoiClick");
+                return false;
             }
         });
     }
+
+    private void initMenu()
+    {
+        ArrayList<String> data = new ArrayList<String>(Arrays.asList(mCounties));
+        View header = getLayoutInflater().inflate(R.layout.layout_menu_list_header, null);
+        ((TextView) header.findViewById(R.id.title)).setText("所在地区");
+        mCountiesAdapter = new MenuAdapter(this, data);
+        mCountiesListView = (ListView) findViewById(R.id.lv_counties);
+        mCountiesListView.addHeaderView(header);
+        mCountiesListView.setAdapter(mCountiesAdapter);
+        mCountiesListView.setOnItemClickListener(new AdapterView.OnItemClickListener()
+        {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id)
+            {
+                mCountiesAdapter.setSelected(position - mCountiesListView.getHeaderViewsCount());
+            }
+        });
+
+        ArrayList<String> levels = new ArrayList<String>(Arrays.asList(mLevels));
+        View levelHeader = getLayoutInflater().inflate(R.layout.layout_menu_list_header, null);
+        ((TextView) levelHeader.findViewById(R.id.title)).setText("粮功区级别");
+        mLevelsAdapter = new MenuAdapter(this, levels);
+        mLevelsListView = (ListView) findViewById(R.id.lv_levels);
+        mLevelsListView.addHeaderView(levelHeader);
+        mLevelsListView.setAdapter(mLevelsAdapter);
+
+        mLevelsListView.setOnItemClickListener(new AdapterView.OnItemClickListener()
+        {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id)
+            {
+                mLevelsAdapter.setSelected(position - mLevelsListView.getHeaderViewsCount());
+            }
+        });
+    }
+
     @Override
     protected void onStart()
     {
@@ -199,62 +292,67 @@ public class MainActivity extends ActionBarActivity implements BDLocationListene
     public void onReceiveLocation(BDLocation location)
     {
         if (location == null)
-            return ;
+        {
+            return;
+        }
 
         Log.d(TAG, "onReceiveLocation:" + location);
 
     }
 
-    private void addLgqPolygons()
+    /**
+     * @param lgqs
+     */
+    private void addLgqPolygons(List<LGQ> lgqs)
     {
-        List<LGQ> lgqs = getAll();
-        Log.d(TAG, "city:" + lgqs.get(0).city);
-        Log.d(TAG, "lat:" + lgqs.get(0).polygon().get(0).lat);
-        Log.d(TAG, "lng:" + lgqs.get(0).polygon().get(0).lng);
-        Log.d(TAG, "all:" + lgqs);
+        if (null == lgqs || lgqs.size() == 0)
+        {
+            return;
+        }
 
 
-        for (LGQ lgq:lgqs)
+        for (LGQ lgq : lgqs)
         {
             List<LatLng> pts = new ArrayList<LatLng>();
             List<PolygonPoint> points = lgq.polygon();
             int numPoints = points.size();
 
-            for (int i = 0; i < numPoints; i=i+3)
+            for (int i = 0; i < numPoints; i = i + 3)
             {
 
-                Log.d(TAG, "Id:" + points.get(i).getId());
+                //Log.d(TAG, "Id:" + points.get(i).getId());
                 LatLng ll = new LatLng(points.get(i).lat, points.get(i).lng);
                 pts.add(ll);
 
-                View view = mInflater.inflate(R.layout.layout_text_marker, null);
-                TextView t = (TextView) view.findViewById(R.id.label);
-                t.setText(i + 1 + "");
-
-                BitmapDescriptor bdA = BitmapDescriptorFactory.fromView(view);
-                OverlayOptions options = new MarkerOptions()
-                        .position(ll)  //设置marker的位置
-                        .icon(bdA)  //设置marker图标
-                        .draggable(true);  //设置手势拖拽
-
-                mBaiduMap.addOverlay(options);
+//                View view = mInflater.inflate(R.layout.layout_text_marker, null);
+//                TextView t = (TextView) view.findViewById(R.id.label);
+//                t.setText(i + 1 + "");
+//
+//                BitmapDescriptor bdA = BitmapDescriptorFactory.fromView(view);
+//                OverlayOptions options = new MarkerOptions()
+//                        .position(ll)  //设置marker的位置
+//                        .icon(bdA)  //设置marker图标
+//                        .draggable(true);  //设置手势拖拽
+//
+//                mBaiduMap.addOverlay(options);
             }
-
-
 
             OverlayOptions polygonOption = new PolygonOptions()
                     .points(pts)
                     .stroke(new Stroke(5, 0xAA00FF00))
                     .fillColor(0xAAFFFF00);
 
-            mBaiduMap.addOverlay(polygonOption);
+            Polygon p = (Polygon) mBaiduMap.addOverlay(polygonOption);
+
 
         }
 
     }
 
 
-    public static List<LGQ> getAll() {
+    public  List<LGQ> getAll()
+    {
+
         return new Select()
                 .from(LGQ.class)
                 .orderBy("id ASC")
@@ -313,7 +411,7 @@ public class MainActivity extends ActionBarActivity implements BDLocationListene
                     }
                 }
 
-                PolygonPoint latlng = new PolygonPoint((double) (Float)  row[11], (double) (Float)  row[10], lgq);
+                PolygonPoint latlng = new PolygonPoint((double) (Float) row[11], (double) (Float) row[10], lgq);
                 latlng.save();
 
                 return null;
