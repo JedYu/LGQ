@@ -1,5 +1,6 @@
 package li.vane.ex.lgq;
 
+import android.app.AlertDialog;
 import android.content.res.AssetManager;
 import android.os.Bundle;
 import android.os.Handler;
@@ -22,7 +23,6 @@ import com.baidu.location.LocationClient;
 import com.baidu.location.LocationClientOption;
 import com.baidu.mapapi.SDKInitializer;
 import com.baidu.mapapi.map.BaiduMap;
-import com.baidu.mapapi.map.MapPoi;
 import com.baidu.mapapi.map.MapStatus;
 import com.baidu.mapapi.map.MapStatusUpdate;
 import com.baidu.mapapi.map.MapStatusUpdateFactory;
@@ -33,6 +33,10 @@ import com.baidu.mapapi.map.Polygon;
 import com.baidu.mapapi.map.PolygonOptions;
 import com.baidu.mapapi.map.Stroke;
 import com.baidu.mapapi.model.LatLng;
+import com.baidu.mapapi.utils.CoordinateConverter;
+import com.baidu.mapapi.utils.SpatialRelationUtil;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 import org.jamel.dbf.processor.DbfProcessor;
 import org.jamel.dbf.processor.DbfRowMapper;
@@ -47,6 +51,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import li.vane.ex.lgq.adapter.LGQAdapter;
 import li.vane.ex.lgq.adapter.MenuAdapter;
 import li.vane.ex.lgq.bean.LGQ;
 import li.vane.ex.lgq.bean.PolygonPoint;
@@ -228,22 +233,58 @@ public class MainActivity extends ActionBarActivity implements BDLocationListene
         });
 
 
-        mBaiduMap.setOnMapClickListener(new BaiduMap.OnMapClickListener()
+        mBaiduMap.setOnMapLongClickListener(new BaiduMap.OnMapLongClickListener()
         {
             @Override
-            public void onMapClick(LatLng latLng)
+            public void onMapLongClick(LatLng latLng)
             {
-                //SpatialRelationUtil.isPolygonContainsPoint()
-                Log.d(TAG, "onMapClick");
-            }
+                for (Polygon p : mLgqPolygons)
+                {
+                    boolean b = SpatialRelationUtil.isPolygonContainsPoint(p.getPoints(), latLng);
+                    if (b)
+                    {
+                        Bundle bundle = p.getExtraInfo();
+                        Log.d(TAG, "onPolygonLongClick:" + bundle.getString("detail"));
 
-            @Override
-            public boolean onMapPoiClick(MapPoi mapPoi)
-            {
-                Log.d(TAG, "onMapPoiClick");
-                return false;
+                        LGQ lgq = new Gson().fromJson(bundle.getString("detail"), LGQ.class);
+
+
+                        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(MainActivity.this);
+                        View view = mInflater.inflate(R.layout.layout_dialog_detail, null);
+                        dialogBuilder.setView(view);
+
+                        TextView tvName = (TextView) view.findViewById(R.id.tv_name);
+                        tvName.setText(lgq.name);
+
+                        TextView tvCity = (TextView) view.findViewById(R.id.tv_city);
+                        tvCity.setText(lgq.city);
+
+                        TextView tvCounty = (TextView) view.findViewById(R.id.tv_county);
+                        tvCounty.setText(lgq.county);
+
+                        TextView tvCrop = (TextView) view.findViewById(R.id.tv_crop);
+                        tvCrop.setText(lgq.crop);
+
+                        TextView tvArea = (TextView) view.findViewById(R.id.tv_area);
+                        tvArea.setText(String.valueOf(lgq.area));
+
+                        TextView tvLevel = (TextView) view.findViewById(R.id.tv_level);
+                        tvLevel.setText(lgq.level);
+
+                        TextView tvPlanYear = (TextView) view.findViewById(R.id.tv_plan_year);
+                        tvPlanYear.setText(lgq.planYear);
+
+                        TextView tvIdentifiedYear = (TextView) view.findViewById(R.id.tv_identified_year);
+                        tvIdentifiedYear.setText(lgq.identifiedYear);
+
+                        AlertDialog alertDialog = dialogBuilder.create();
+                        alertDialog.show();
+                        break;
+                    }
+                }
             }
         });
+
     }
 
     private void initMenu()
@@ -309,7 +350,8 @@ public class MainActivity extends ActionBarActivity implements BDLocationListene
         {
             return;
         }
-
+        GsonBuilder gsonBuilder = new GsonBuilder();
+        Gson gson = gsonBuilder.registerTypeAdapter(LGQ.class, new LGQAdapter()).create();
 
         for (LGQ lgq : lgqs)
         {
@@ -317,7 +359,7 @@ public class MainActivity extends ActionBarActivity implements BDLocationListene
             List<PolygonPoint> points = lgq.polygon();
             int numPoints = points.size();
 
-            for (int i = 0; i < numPoints; i = i + 3)
+            for (int i = 0; i < numPoints; i++)
             {
 
                 //Log.d(TAG, "Id:" + points.get(i).getId());
@@ -339,12 +381,16 @@ public class MainActivity extends ActionBarActivity implements BDLocationListene
 
             OverlayOptions polygonOption = new PolygonOptions()
                     .points(pts)
-                    .stroke(new Stroke(5, 0xAA00FF00))
-                    .fillColor(0xAAFFFF00);
+                    .stroke(new Stroke(3, 0xEE00FF00))
+                    .fillColor(0xEEFFFF00);
 
             Polygon p = (Polygon) mBaiduMap.addOverlay(polygonOption);
 
+            Bundle bundle = new Bundle();
+            bundle.putString("detail", gson.toJson(lgq));
+            p.setExtraInfo(bundle);
 
+            mLgqPolygons.add(p);
         }
 
     }
@@ -411,7 +457,9 @@ public class MainActivity extends ActionBarActivity implements BDLocationListene
                     }
                 }
 
-                PolygonPoint latlng = new PolygonPoint((double) (Float) row[11], (double) (Float) row[10], lgq);
+                LatLng ll = new LatLng((double) (Float) row[11], (double) (Float) row[10]);
+                LatLng bdll = new CoordinateConverter().from(CoordinateConverter.CoordType.GPS).coord(ll).convert();
+                PolygonPoint latlng = new PolygonPoint(bdll.latitude, bdll.longitude, lgq);
                 latlng.save();
 
                 return null;
