@@ -12,8 +12,10 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.activeandroid.query.From;
 import com.activeandroid.query.Select;
@@ -156,7 +158,33 @@ public class MainActivity extends ActionBarActivity implements BDLocationListene
                 List<LGQ> lgqs = searchLgq(mCountiesAdapter.getSelected(), mLevelsAdapter.getSelected());
                 Log.d(TAG, "searchLgq:" + lgqs.size());
                 mBaiduMap.clear();
-                addLgqPolygons(lgqs);
+
+                if (lgqs != null && lgqs.size() > 0)
+                {
+                    addLgqPolygons(lgqs);
+
+                    LGQ lgq = lgqs.get(0);
+                    List<PolygonPoint> points = lgq.polygon();
+                    if (null != points)
+                    {
+                        int size = points.size();
+                        double lat = 0;
+                        double lon = 0;
+                        for (int i = 0; i < size; i++)
+                        {
+                            lat += points.get(i).lat;
+                            lon += points.get(i).lng;
+                        }
+
+                        LatLng ll = new LatLng(lat/size, lon/size);
+                        MapStatusUpdate u = MapStatusUpdateFactory.newLatLng(ll);
+                        mBaiduMap.animateMapStatus(u);
+                    }
+                }
+                else
+                {
+                    Toast.makeText(MainActivity.this, "无相关搜索结果", Toast.LENGTH_LONG).show();
+                }
             }
         });
     }
@@ -253,28 +281,28 @@ public class MainActivity extends ActionBarActivity implements BDLocationListene
                         View view = mInflater.inflate(R.layout.layout_dialog_detail, null);
                         dialogBuilder.setView(view);
 
-                        TextView tvName = (TextView) view.findViewById(R.id.tv_name);
+                        EditText tvName = (EditText) view.findViewById(R.id.tv_name);
                         tvName.setText(lgq.name);
 
-                        TextView tvCity = (TextView) view.findViewById(R.id.tv_city);
+                        EditText tvCity = (EditText) view.findViewById(R.id.tv_city);
                         tvCity.setText(lgq.city);
 
-                        TextView tvCounty = (TextView) view.findViewById(R.id.tv_county);
+                        EditText tvCounty = (EditText) view.findViewById(R.id.tv_county);
                         tvCounty.setText(lgq.county);
 
-                        TextView tvCrop = (TextView) view.findViewById(R.id.tv_crop);
+                        EditText tvCrop = (EditText) view.findViewById(R.id.tv_crop);
                         tvCrop.setText(lgq.crop);
 
-                        TextView tvArea = (TextView) view.findViewById(R.id.tv_area);
-                        tvArea.setText(String.valueOf(lgq.area));
+                        EditText tvArea = (EditText) view.findViewById(R.id.tv_area);
+                        tvArea.setText(String.valueOf((int)(lgq.area)));
 
-                        TextView tvLevel = (TextView) view.findViewById(R.id.tv_level);
+                        EditText tvLevel = (EditText) view.findViewById(R.id.tv_level);
                         tvLevel.setText(lgq.level);
 
-                        TextView tvPlanYear = (TextView) view.findViewById(R.id.tv_plan_year);
+                        EditText tvPlanYear = (EditText) view.findViewById(R.id.tv_plan_year);
                         tvPlanYear.setText(lgq.planYear);
 
-                        TextView tvIdentifiedYear = (TextView) view.findViewById(R.id.tv_identified_year);
+                        EditText tvIdentifiedYear = (EditText) view.findViewById(R.id.tv_identified_year);
                         tvIdentifiedYear.setText(lgq.identifiedYear);
 
                         AlertDialog alertDialog = dialogBuilder.create();

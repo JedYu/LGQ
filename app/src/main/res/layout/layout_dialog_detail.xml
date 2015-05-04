@@ -8,15 +8,21 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="#999999"
-        android:paddingTop="16dp"
+        android:paddingTop="8dp"
         android:paddingLeft="4dp"
-        android:paddingBottom="16dp">
-        <TextView
+        android:orientation="horizontal"
+        android:paddingBottom="8dp">
+        <EditText
             android:id="@+id/tv_name"
             android:textColor="#ffffff"
-            android:textSize="16sp"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:editable="false"
+            android:background="@null"
+            android:layout_weight="1"/>
+
     </LinearLayout>
 
     <TableLayout
@@ -25,139 +31,168 @@
         <TableRow
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="8dp">
+            android:padding="4dp">
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:layout_gravity="left"
                 android:text="城市名称"
-                android:padding="3dip"  />
-            <TextView
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:padding="4dp"  />
+            <EditText
                 android:id="@+id/tv_city"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_gravity="center_vertical"
                 android:layout_weight="1"
                 android:text="column2"
-                android:padding="3dip"  />
+                android:editable="false"
+                android:padding="4dp"  />
         </TableRow>
 
         <TableRow
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="8dp">
+            android:padding="4dp">
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:layout_gravity="left"
                 android:text="县市区名称"
-                android:padding="3dip"  />
-            <TextView
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:padding="4dp"  />
+            <EditText
                 android:id="@+id/tv_county"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_gravity="center_vertical"
                 android:layout_weight="1"
                 android:text="column2"
-                android:padding="3dip"  />
+                android:editable="false"
+                android:padding="4dp"  />
         </TableRow>
 
         <TableRow
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="8dp">
+            android:padding="4dp">
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:text="建设级别"
-                android:padding="3dip"  />
-            <TextView
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:padding="4dp"  />
+            <EditText
                 android:id="@+id/tv_level"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_gravity="center_vertical"
                 android:layout_weight="1"
                 android:text="column2"
-                android:padding="3dip"  />
+                android:editable="false"
+                android:padding="4dp"  />
         </TableRow>
 
         <TableRow
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="8dp">
+            android:padding="4dp">
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:text="建设面积"
-                android:padding="3dip"  />
-            <TextView
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:padding="4dp"  />
+            <EditText
                 android:id="@+id/tv_area"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_gravity="center_vertical"
                 android:layout_weight="1"
                 android:text="column2"
-                android:padding="3dip"  />
+                android:editable="false"
+                android:padding="4dp"  />
         </TableRow>
 
         <TableRow
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="8dp">
+            android:padding="4dp">
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:text="种植模式"
-                android:padding="3dip"  />
-            <TextView
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:padding="4dp"  />
+            <EditText
                 android:id="@+id/tv_crop"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_gravity="center_vertical"
                 android:layout_weight="1"
                 android:text="column2"
-                android:padding="3dip"  />
+                android:editable="false"
+                android:padding="4dp"  />
         </TableRow>
 
 
         <TableRow
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="8dp">
+            android:padding="4dp">
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:text="建设规划年"
-                android:padding="3dip"  />
-            <TextView
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:padding="4dp"  />
+            <EditText
                 android:id="@+id/tv_plan_year"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_gravity="center_vertical"
                 android:layout_weight="1"
                 android:text="column2"
-                android:padding="3dip"  />
+                android:editable="false"
+                android:padding="4dp"  />
         </TableRow>
 
         <TableRow
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="8dp">
+            android:padding="4dp">
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:text="建设认定年"
-                android:padding="3dip"  />
-            <TextView
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:padding="4dp"  />
+            <EditText
                 android:id="@+id/tv_identified_year"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_gravity="center_vertical"
                 android:layout_weight="1"
                 android:text="column2"
-                android:padding="3dip"  />
+                android:editable="false"
+                android:padding="4dp"  />
         </TableRow>
     </TableLayout>
 
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="更新"/>
+    </LinearLayout>
 </LinearLayout>
