@@ -1,143 +1,161 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:orientation="vertical"
               android:layout_width="match_parent"
-              android:layout_height="match_parent">
+              android:layout_height="match_parent"
+              android:orientation="vertical">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="#999999"
-        android:paddingTop="8dp"
-        android:paddingLeft="4dp"
         android:orientation="horizontal"
-        android:paddingBottom="8dp">
+        android:paddingBottom="8dp"
+        android:paddingLeft="4dp"
+        android:paddingTop="8dp">
+
         <EditText
             android:id="@+id/tv_name"
-            android:textColor="#ffffff"
-            android:textSize="20sp"
-            android:textStyle="bold"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:editable="false"
+            android:layout_weight="1"
             android:background="@null"
-            android:layout_weight="1"/>
+            android:enabled="false"
+            android:singleLine="true"
+            android:textColor="#ffffff"
+            android:textSize="20sp"
+            android:textStyle="bold"/>
 
     </LinearLayout>
 
     <TableLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
+
         <TableRow
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="4dp">
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:layout_gravity="left"
+                android:padding="4dp"
                 android:text="城市名称"
                 android:textSize="16sp"
-                android:textStyle="bold"
-                android:padding="4dp"  />
+                android:textStyle="bold"/>
+
             <EditText
                 android:id="@+id/tv_city"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_gravity="center_vertical"
                 android:layout_weight="1"
-                android:text="column2"
-                android:editable="false"
-                android:padding="4dp"  />
+                android:enabled="false"
+                android:padding="4dp"
+                android:singleLine="true"
+                android:text="column2"/>
         </TableRow>
 
         <TableRow
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="4dp">
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:layout_gravity="left"
+                android:padding="4dp"
                 android:text="县市区名称"
                 android:textSize="16sp"
-                android:textStyle="bold"
-                android:padding="4dp"  />
+                android:textStyle="bold"/>
+
             <EditText
                 android:id="@+id/tv_county"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_gravity="center_vertical"
                 android:layout_weight="1"
-                android:text="column2"
-                android:editable="false"
-                android:padding="4dp"  />
+                android:enabled="false"
+                android:padding="4dp"
+                android:singleLine="true"
+                android:text="column2"/>
         </TableRow>
 
         <TableRow
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="4dp">
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
+                android:padding="4dp"
                 android:text="建设级别"
                 android:textSize="16sp"
-                android:textStyle="bold"
-                android:padding="4dp"  />
+                android:textStyle="bold"/>
+
             <EditText
                 android:id="@+id/tv_level"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_gravity="center_vertical"
                 android:layout_weight="1"
-                android:text="column2"
-                android:editable="false"
-                android:padding="4dp"  />
+                android:enabled="false"
+                android:padding="4dp"
+                android:singleLine="true"
+                android:text="column2"/>
         </TableRow>
 
         <TableRow
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="4dp">
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
+                android:padding="4dp"
                 android:text="建设面积"
                 android:textSize="16sp"
-                android:textStyle="bold"
-                android:padding="4dp"  />
+                android:textStyle="bold"/>
+
             <EditText
                 android:id="@+id/tv_area"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_gravity="center_vertical"
                 android:layout_weight="1"
-                android:text="column2"
-                android:editable="false"
-                android:padding="4dp"  />
+                android:enabled="false"
+                android:padding="4dp"
+                android:singleLine="true"
+                android:text="column2"/>
         </TableRow>
 
         <TableRow
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="4dp">
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
+                android:padding="4dp"
                 android:text="种植模式"
                 android:textSize="16sp"
-                android:textStyle="bold"
-                android:padding="4dp"  />
+                android:textStyle="bold"/>
+
             <EditText
                 android:id="@+id/tv_crop"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_gravity="center_vertical"
                 android:layout_weight="1"
-                android:text="column2"
-                android:editable="false"
-                android:padding="4dp"  />
+                android:enabled="false"
+                android:padding="4dp"
+                android:singleLine="true"
+                android:text="column2"/>
         </TableRow>
 
 
@@ -145,54 +163,69 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="4dp">
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
+                android:padding="4dp"
                 android:text="建设规划年"
                 android:textSize="16sp"
-                android:textStyle="bold"
-                android:padding="4dp"  />
+                android:textStyle="bold"/>
+
             <EditText
                 android:id="@+id/tv_plan_year"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_gravity="center_vertical"
                 android:layout_weight="1"
-                android:text="column2"
-                android:editable="false"
-                android:padding="4dp"  />
+                android:enabled="false"
+                android:padding="4dp"
+                android:singleLine="true"
+                android:text="column2"/>
         </TableRow>
 
         <TableRow
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="4dp">
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
+                android:padding="4dp"
                 android:text="建设认定年"
                 android:textSize="16sp"
-                android:textStyle="bold"
-                android:padding="4dp"  />
+                android:textStyle="bold"/>
+
             <EditText
                 android:id="@+id/tv_identified_year"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_gravity="center_vertical"
                 android:layout_weight="1"
-                android:text="column2"
-                android:editable="false"
-                android:padding="4dp"  />
+                android:enabled="false"
+                android:padding="4dp"
+                android:singleLine="true"
+                android:text="column2"/>
         </TableRow>
     </TableLayout>
 
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:gravity="center"
+        android:padding="16dp">
+
         <Button
-            android:layout_width="wrap_content"
+            android:id="@+id/btn_edit"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="更新"/>
+            android:text="编辑">
+        </Button>
+
+        <requestFocus/>
     </LinearLayout>
 </LinearLayout>

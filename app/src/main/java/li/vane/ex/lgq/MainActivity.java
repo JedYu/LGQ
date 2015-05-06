@@ -13,6 +13,8 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -71,6 +73,8 @@ public class MainActivity extends ActionBarActivity implements BDLocationListene
     private ListView mLevelsListView;
     private MenuAdapter  mCountiesAdapter;
     private MenuAdapter  mLevelsAdapter;
+    private LinearLayout mSearchList;
+    private ImageButton mBtnSearch;
 
     private List<Polygon> mLgqPolygons = new ArrayList<Polygon>();
 
@@ -145,48 +149,62 @@ public class MainActivity extends ActionBarActivity implements BDLocationListene
         mMapView = (MapView) findViewById(R.id.map);
         mBaiduMap = mMapView.getMap();
 
-        initMap();
-
-        initMenu();
-
-        Button btnSearch = (Button) findViewById(R.id.search);
-        btnSearch.setOnClickListener(new View.OnClickListener()
+        mBtnSearch = (ImageButton) findViewById(R.id.btn_search);
+        mBtnSearch.setOnClickListener(new View.OnClickListener()
         {
             @Override
             public void onClick(View v)
             {
-                List<LGQ> lgqs = searchLgq(mCountiesAdapter.getSelected(), mLevelsAdapter.getSelected());
-                Log.d(TAG, "searchLgq:" + lgqs.size());
-                mBaiduMap.clear();
-
-                if (lgqs != null && lgqs.size() > 0)
+                if (mSearchList.getVisibility() != View.VISIBLE)
                 {
-                    addLgqPolygons(lgqs);
-
-                    LGQ lgq = lgqs.get(0);
-                    List<PolygonPoint> points = lgq.polygon();
-                    if (null != points)
-                    {
-                        int size = points.size();
-                        double lat = 0;
-                        double lon = 0;
-                        for (int i = 0; i < size; i++)
-                        {
-                            lat += points.get(i).lat;
-                            lon += points.get(i).lng;
-                        }
-
-                        LatLng ll = new LatLng(lat/size, lon/size);
-                        MapStatusUpdate u = MapStatusUpdateFactory.newLatLng(ll);
-                        mBaiduMap.animateMapStatus(u);
-                    }
+                    mSearchList.setVisibility(View.VISIBLE);
                 }
                 else
                 {
-                    Toast.makeText(MainActivity.this, "无相关搜索结果", Toast.LENGTH_LONG).show();
+                    mSearchList.setVisibility(View.GONE);
                 }
             }
         });
+
+        initMap();
+
+        initMenu();
+
+        doSearchAndAddLgq();
+    }
+
+    private void doSearchAndAddLgq()
+    {
+        List<LGQ> lgqs = searchLgq(mCountiesAdapter.getSelected(), mLevelsAdapter.getSelected());
+        Log.d(TAG, "searchLgq:" + lgqs.size());
+        mBaiduMap.clear();
+
+        if (lgqs != null && lgqs.size() > 0)
+        {
+            addLgqPolygons(lgqs);
+
+            LGQ lgq = lgqs.get(0);
+            List<PolygonPoint> points = lgq.polygon();
+            if (null != points)
+            {
+                int size = points.size();
+                double lat = 0;
+                double lon = 0;
+                for (int i = 0; i < size; i++)
+                {
+                    lat += points.get(i).lat;
+                    lon += points.get(i).lng;
+                }
+
+                LatLng ll = new LatLng(lat/size, lon/size);
+                MapStatusUpdate u = MapStatusUpdateFactory.newLatLng(ll);
+                mBaiduMap.animateMapStatus(u);
+            }
+        }
+        else
+        {
+            Toast.makeText(MainActivity.this, "无相关搜索结果", Toast.LENGTH_LONG).show();
+        }
     }
 
     private List<LGQ> searchLgq(int county, int level)
@@ -266,46 +284,95 @@ public class MainActivity extends ActionBarActivity implements BDLocationListene
             @Override
             public void onMapLongClick(LatLng latLng)
             {
-                for (Polygon p : mLgqPolygons)
+                for (final Polygon p : mLgqPolygons)
                 {
                     boolean b = SpatialRelationUtil.isPolygonContainsPoint(p.getPoints(), latLng);
                     if (b)
                     {
                         Bundle bundle = p.getExtraInfo();
-                        Log.d(TAG, "onPolygonLongClick:" + bundle.getString("detail"));
+                        Log.d(TAG, "onPolygonLongClick:" + bundle.getString("id"));
 
-                        LGQ lgq = new Gson().fromJson(bundle.getString("detail"), LGQ.class);
+                        long id = Long.parseLong(bundle.getString("id"));
+                        final LGQ lgq = LGQ.load(LGQ.class, id);
+                        if (null == lgq)
+                        {
+                            continue;
+                        }
 
 
                         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(MainActivity.this);
                         View view = mInflater.inflate(R.layout.layout_dialog_detail, null);
                         dialogBuilder.setView(view);
 
-                        EditText tvName = (EditText) view.findViewById(R.id.tv_name);
+                        final AlertDialog alertDialog = dialogBuilder.create();
+
+                        final EditText tvName = (EditText) view.findViewById(R.id.tv_name);
                         tvName.setText(lgq.name);
 
-                        EditText tvCity = (EditText) view.findViewById(R.id.tv_city);
+                        final EditText tvCity = (EditText) view.findViewById(R.id.tv_city);
                         tvCity.setText(lgq.city);
 
-                        EditText tvCounty = (EditText) view.findViewById(R.id.tv_county);
+                        final EditText tvCounty = (EditText) view.findViewById(R.id.tv_county);
                         tvCounty.setText(lgq.county);
 
-                        EditText tvCrop = (EditText) view.findViewById(R.id.tv_crop);
+                        final EditText tvCrop = (EditText) view.findViewById(R.id.tv_crop);
                         tvCrop.setText(lgq.crop);
 
-                        EditText tvArea = (EditText) view.findViewById(R.id.tv_area);
+                        final EditText tvArea = (EditText) view.findViewById(R.id.tv_area);
                         tvArea.setText(String.valueOf((int)(lgq.area)));
 
-                        EditText tvLevel = (EditText) view.findViewById(R.id.tv_level);
+                        final EditText tvLevel = (EditText) view.findViewById(R.id.tv_level);
                         tvLevel.setText(lgq.level);
 
-                        EditText tvPlanYear = (EditText) view.findViewById(R.id.tv_plan_year);
+                        final EditText tvPlanYear = (EditText) view.findViewById(R.id.tv_plan_year);
                         tvPlanYear.setText(lgq.planYear);
 
-                        EditText tvIdentifiedYear = (EditText) view.findViewById(R.id.tv_identified_year);
+                        final EditText tvIdentifiedYear = (EditText) view.findViewById(R.id.tv_identified_year);
                         tvIdentifiedYear.setText(lgq.identifiedYear);
 
-                        AlertDialog alertDialog = dialogBuilder.create();
+                        final Button btnEdit = (Button) view.findViewById(R.id.btn_edit);
+
+
+                        btnEdit.setOnClickListener(new View.OnClickListener()
+                        {
+                            @Override
+                            public void onClick(View v)
+                            {
+                                boolean enable = false;
+                                if (btnEdit.getText().equals("编辑"))
+                                {
+                                    enable = true;
+                                    btnEdit.setText("保存");
+                                }
+                                else
+                                {
+                                    enable = false;
+                                    btnEdit.setText("编辑");
+
+                                    lgq.name = tvName.getText().toString().trim();
+                                    lgq.city = tvCity.getText().toString().trim();
+                                    lgq.county = tvCounty.getText().toString().trim();
+                                    lgq.crop = tvCrop.getText().toString().trim();
+                                    lgq.area = Double.parseDouble(tvArea.getText().toString().trim());
+                                    lgq.level = tvLevel.getText().toString().trim();
+                                    lgq.planYear = tvPlanYear.getText().toString().trim();
+                                    lgq.identifiedYear = tvIdentifiedYear.getText().toString().trim();
+                                    lgq.save();
+
+                                    alertDialog.dismiss();
+                                }
+
+                                tvName.setEnabled(enable);
+                                tvCity.setEnabled(enable);
+                                tvCounty.setEnabled(enable);
+                                tvCrop.setEnabled(enable);
+                                tvArea.setEnabled(enable);
+                                tvLevel.setEnabled(enable);
+                                tvPlanYear.setEnabled(enable);
+                                tvIdentifiedYear.setEnabled(enable);
+                            }
+                        });
+
                         alertDialog.show();
                         break;
                     }
@@ -317,6 +384,8 @@ public class MainActivity extends ActionBarActivity implements BDLocationListene
 
     private void initMenu()
     {
+
+        mSearchList = (LinearLayout) findViewById(R.id.ll_search_list);
         ArrayList<String> data = new ArrayList<String>(Arrays.asList(mCounties));
         View header = getLayoutInflater().inflate(R.layout.layout_menu_list_header, null);
         ((TextView) header.findViewById(R.id.title)).setText("所在地区");
@@ -330,6 +399,7 @@ public class MainActivity extends ActionBarActivity implements BDLocationListene
             public void onItemClick(AdapterView<?> parent, View view, int position, long id)
             {
                 mCountiesAdapter.setSelected(position - mCountiesListView.getHeaderViewsCount());
+                doSearchAndAddLgq();
             }
         });
 
@@ -347,6 +417,7 @@ public class MainActivity extends ActionBarActivity implements BDLocationListene
             public void onItemClick(AdapterView<?> parent, View view, int position, long id)
             {
                 mLevelsAdapter.setSelected(position - mLevelsListView.getHeaderViewsCount());
+                doSearchAndAddLgq();
             }
         });
     }
@@ -415,7 +486,7 @@ public class MainActivity extends ActionBarActivity implements BDLocationListene
             Polygon p = (Polygon) mBaiduMap.addOverlay(polygonOption);
 
             Bundle bundle = new Bundle();
-            bundle.putString("detail", gson.toJson(lgq));
+            bundle.putString("id", String.valueOf(lgq.getId()));
             p.setExtraInfo(bundle);
 
             mLgqPolygons.add(p);
@@ -468,14 +539,14 @@ public class MainActivity extends ActionBarActivity implements BDLocationListene
                     try
                     {
                         lgq = new LGQ();
-                        lgq.city = new String((byte[]) row[1], "GBK");
-                        lgq.county = new String((byte[]) row[2], "GBK");
-                        lgq.name = new String((byte[]) row[3], "GBK");
-                        lgq.level = new String((byte[]) row[4], "GBK");
+                        lgq.city = new String((byte[]) row[1], "GBK").trim();
+                        lgq.county = new String((byte[]) row[2], "GBK").trim();
+                        lgq.name = new String((byte[]) row[3], "GBK").trim();
+                        lgq.level = new String((byte[]) row[4], "GBK").trim();
                         lgq.area = (double) (Float) row[5];
-                        lgq.crop = new String((byte[]) row[6], "GBK");
-                        lgq.planYear = String.valueOf((double) row[7]);
-                        lgq.identifiedYear = String.valueOf((double) row[8]);
+                        lgq.crop = new String((byte[]) row[6], "GBK").trim();
+                        lgq.planYear = String.valueOf((int) (double) row[7]);
+                        lgq.identifiedYear = String.valueOf((int) (double) row[8]);
                         lgq.save();
                     }
                     catch (UnsupportedEncodingException e)
