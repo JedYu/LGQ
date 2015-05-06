@@ -48,18 +48,29 @@
 
 
         <ImageButton
+            android:layout_gravity="right"
             android:id="@+id/btn_search"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:src="@drawable/icon_search"/>
 
 
-        <ImageButton
-            android:id="@+id/btn_new_polygon"
+        <LinearLayout
+            android:layout_gravity="right"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/icon_start_locate_polygon"/>
-
+            android:orientation="horizontal">
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:drawableLeft="@drawable/icon_locate"
+                android:text="标记"/>
+            <ImageButton
+                android:id="@+id/btn_new_polygon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/icon_start_locate_polygon"/>
+        </LinearLayout>
 
     </LinearLayout>
 
