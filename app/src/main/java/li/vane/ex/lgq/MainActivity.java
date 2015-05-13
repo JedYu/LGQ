@@ -13,7 +13,6 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -27,10 +26,13 @@ import com.baidu.location.LocationClient;
 import com.baidu.location.LocationClientOption;
 import com.baidu.mapapi.SDKInitializer;
 import com.baidu.mapapi.map.BaiduMap;
+import com.baidu.mapapi.map.BitmapDescriptor;
+import com.baidu.mapapi.map.BitmapDescriptorFactory;
 import com.baidu.mapapi.map.MapStatus;
 import com.baidu.mapapi.map.MapStatusUpdate;
 import com.baidu.mapapi.map.MapStatusUpdateFactory;
 import com.baidu.mapapi.map.MapView;
+import com.baidu.mapapi.map.MarkerOptions;
 import com.baidu.mapapi.map.MyLocationData;
 import com.baidu.mapapi.map.OverlayOptions;
 import com.baidu.mapapi.map.Polygon;
@@ -71,10 +73,11 @@ public class MainActivity extends ActionBarActivity implements BDLocationListene
     private LayoutInflater mInflater = null;
     private ListView mCountiesListView;
     private ListView mLevelsListView;
-    private MenuAdapter  mCountiesAdapter;
-    private MenuAdapter  mLevelsAdapter;
+    private MenuAdapter mCountiesAdapter;
+    private MenuAdapter mLevelsAdapter;
     private LinearLayout mSearchList;
-    private ImageButton mBtnSearch;
+    private Button mBtnSearch;
+    private Button mBtnNewPolygon;
 
     private List<Polygon> mLgqPolygons = new ArrayList<Polygon>();
 
@@ -149,7 +152,19 @@ public class MainActivity extends ActionBarActivity implements BDLocationListene
         mMapView = (MapView) findViewById(R.id.map);
         mBaiduMap = mMapView.getMap();
 
-        mBtnSearch = (ImageButton) findViewById(R.id.btn_search);
+        initWidget();
+
+        initMap();
+
+        initMenu();
+
+        doSearchAndAddLgq();
+    }
+
+
+    public void initWidget()
+    {
+        mBtnSearch = (Button) findViewById(R.id.btn_search);
         mBtnSearch.setOnClickListener(new View.OnClickListener()
         {
             @Override
@@ -166,11 +181,18 @@ public class MainActivity extends ActionBarActivity implements BDLocationListene
             }
         });
 
-        initMap();
+        mBtnNewPolygon = (Button) findViewById(R.id.btn_new_polygon);
+        mBtnNewPolygon.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                MyLocationData loc = mBaiduMap.getLocationData();
+                mBaiduMap.setMapStatus(MapStatusUpdateFactory.newLatLng(new LatLng(loc.latitude, loc.longitude)));
 
-        initMenu();
-
-        doSearchAndAddLgq();
+                addMarker(new LatLng(loc.latitude, loc.longitude), "123");
+            }
+        });
     }
 
     private void doSearchAndAddLgq()
@@ -196,7 +218,7 @@ public class MainActivity extends ActionBarActivity implements BDLocationListene
                     lon += points.get(i).lng;
                 }
 
-                LatLng ll = new LatLng(lat/size, lon/size);
+                LatLng ll = new LatLng(lat / size, lon / size);
                 MapStatusUpdate u = MapStatusUpdateFactory.newLatLng(ll);
                 mBaiduMap.animateMapStatus(u);
             }
@@ -319,7 +341,7 @@ public class MainActivity extends ActionBarActivity implements BDLocationListene
                         tvCrop.setText(lgq.crop);
 
                         final EditText tvArea = (EditText) view.findViewById(R.id.tv_area);
-                        tvArea.setText(String.valueOf((int)(lgq.area)));
+                        tvArea.setText(String.valueOf((int) (lgq.area)));
 
                         final EditText tvLevel = (EditText) view.findViewById(R.id.tv_level);
                         tvLevel.setText(lgq.level);
@@ -440,6 +462,21 @@ public class MainActivity extends ActionBarActivity implements BDLocationListene
 
     }
 
+    private void addMarker(LatLng ll, String text)
+    {
+        View view = mInflater.inflate(R.layout.layout_text_marker, null);
+        TextView t = (TextView) view.findViewById(R.id.label);
+        t.setText(text);
+
+        BitmapDescriptor bdA = BitmapDescriptorFactory.fromView(view);
+        OverlayOptions options = new MarkerOptions()
+                .position(ll)  //设置marker的位置
+                .icon(bdA)  //设置marker图标
+                .draggable(true);  //设置手势拖拽
+
+        mBaiduMap.addOverlay(options);
+    }
+
     /**
      * @param lgqs
      */
@@ -465,17 +502,7 @@ public class MainActivity extends ActionBarActivity implements BDLocationListene
                 LatLng ll = new LatLng(points.get(i).lat, points.get(i).lng);
                 pts.add(ll);
 
-//                View view = mInflater.inflate(R.layout.layout_text_marker, null);
-//                TextView t = (TextView) view.findViewById(R.id.label);
-//                t.setText(i + 1 + "");
-//
-//                BitmapDescriptor bdA = BitmapDescriptorFactory.fromView(view);
-//                OverlayOptions options = new MarkerOptions()
-//                        .position(ll)  //设置marker的位置
-//                        .icon(bdA)  //设置marker图标
-//                        .draggable(true);  //设置手势拖拽
-//
-//                mBaiduMap.addOverlay(options);
+                addMarker(ll, i + 1 + "");
             }
 
             OverlayOptions polygonOption = new PolygonOptions()
@@ -495,7 +522,7 @@ public class MainActivity extends ActionBarActivity implements BDLocationListene
     }
 
 
-    public  List<LGQ> getAll()
+    public List<LGQ> getAll()
     {
 
         return new Select()

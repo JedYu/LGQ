@@ -47,30 +47,23 @@
         android:layout_gravity="right">
 
 
-        <ImageButton
-            android:layout_gravity="right"
+        <Button
             android:id="@+id/btn_search"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/icon_search"/>
+            android:drawableLeft="@drawable/icon_search"
+            android:background="@drawable/d_btn_background"
+            android:padding="8dp"
+            android:text="查找"/>
 
-
-        <LinearLayout
-            android:layout_gravity="right"
+        <Button
+            android:id="@+id/btn_new_polygon"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
-            <Button
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:drawableLeft="@drawable/icon_locate"
-                android:text="标记"/>
-            <ImageButton
-                android:id="@+id/btn_new_polygon"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:src="@drawable/icon_start_locate_polygon"/>
-        </LinearLayout>
+            android:drawableLeft="@drawable/icon_new_polygion"
+            android:background="@drawable/d_btn_background"
+            android:padding="8dp"
+            android:text="创建"/>
 
     </LinearLayout>
 
