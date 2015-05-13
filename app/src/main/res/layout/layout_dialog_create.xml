@@ -4,33 +4,36 @@
               android:layout_height="match_parent"
               android:orientation="vertical">
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="#999999"
-        android:orientation="horizontal"
-        android:paddingBottom="8dp"
-        android:paddingLeft="4dp"
-        android:paddingTop="8dp">
-
-        <EditText
-            android:id="@+id/tv_name"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:background="@null"
-            android:enabled="false"
-            android:singleLine="true"
-            android:hint="粮功区名称"
-            android:textColor="#ffffff"
-            android:textSize="20sp"
-            android:textStyle="bold"/>
-
-    </LinearLayout>
 
     <TableLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="4dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_gravity="left"
+                android:padding="4dp"
+                android:text="粮功区名称"
+                android:textSize="16sp"
+                android:textStyle="bold"/>
+
+            <EditText
+                android:id="@+id/tv_name"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_gravity="center_vertical"
+                android:layout_weight="1"
+
+                android:padding="4dp"
+                android:singleLine="true"
+                android:text=""/>
+        </TableRow>
 
         <TableRow
             android:layout_width="match_parent"
@@ -52,10 +55,9 @@
                 android:layout_height="match_parent"
                 android:layout_gravity="center_vertical"
                 android:layout_weight="1"
-                android:enabled="false"
                 android:padding="4dp"
                 android:singleLine="true"
-                android:text="column2"/>
+                android:text="宁波市"/>
         </TableRow>
 
         <TableRow
@@ -78,10 +80,10 @@
                 android:layout_height="match_parent"
                 android:layout_gravity="center_vertical"
                 android:layout_weight="1"
-                android:enabled="false"
+
                 android:padding="4dp"
                 android:singleLine="true"
-                android:text="column2"/>
+                android:text=""/>
         </TableRow>
 
         <TableRow
@@ -103,10 +105,10 @@
                 android:layout_height="match_parent"
                 android:layout_gravity="center_vertical"
                 android:layout_weight="1"
-                android:enabled="false"
+
                 android:padding="4dp"
                 android:singleLine="true"
-                android:text="column2"/>
+                android:text=""/>
         </TableRow>
 
         <TableRow
@@ -128,10 +130,10 @@
                 android:layout_height="match_parent"
                 android:layout_gravity="center_vertical"
                 android:layout_weight="1"
-                android:enabled="false"
+
                 android:padding="4dp"
                 android:singleLine="true"
-                android:text="column2"/>
+                android:text=""/>
         </TableRow>
 
         <TableRow
@@ -153,10 +155,9 @@
                 android:layout_height="match_parent"
                 android:layout_gravity="center_vertical"
                 android:layout_weight="1"
-                android:enabled="false"
                 android:padding="4dp"
                 android:singleLine="true"
-                android:text="column2"/>
+                android:text=""/>
         </TableRow>
 
 
@@ -179,10 +180,10 @@
                 android:layout_height="match_parent"
                 android:layout_gravity="center_vertical"
                 android:layout_weight="1"
-                android:enabled="false"
+
                 android:padding="4dp"
                 android:singleLine="true"
-                android:text="column2"/>
+                android:text=""/>
         </TableRow>
 
         <TableRow
@@ -204,10 +205,9 @@
                 android:layout_height="match_parent"
                 android:layout_gravity="center_vertical"
                 android:layout_weight="1"
-                android:enabled="false"
                 android:padding="4dp"
                 android:singleLine="true"
-                android:text="column2"/>
+                android:text=""/>
         </TableRow>
     </TableLayout>
 
@@ -222,12 +222,11 @@
 
         <Button
             android:id="@+id/btn_edit"
-            android:background="@drawable/d_btn_background"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="编辑">
+            android:background="@drawable/d_btn_background"
+            android:text="完成并开始打点">
         </Button>
 
-        <requestFocus/>
     </LinearLayout>
 </LinearLayout>

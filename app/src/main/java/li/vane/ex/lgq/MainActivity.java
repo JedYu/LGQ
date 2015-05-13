@@ -78,6 +78,7 @@ public class MainActivity extends ActionBarActivity implements BDLocationListene
     private LinearLayout mSearchList;
     private Button mBtnSearch;
     private Button mBtnNewPolygon;
+    private Button mBtnManualLocate;
 
     private List<Polygon> mLgqPolygons = new ArrayList<Polygon>();
 
@@ -187,12 +188,75 @@ public class MainActivity extends ActionBarActivity implements BDLocationListene
             @Override
             public void onClick(View v)
             {
+                final LGQ lgq = new LGQ();
+                AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(MainActivity.this);
+                View view = mInflater.inflate(R.layout.layout_dialog_create, null);
+                dialogBuilder.setView(view);
+
+                final AlertDialog alertDialog = dialogBuilder.create();
+                final EditText tvName = (EditText) view.findViewById(R.id.tv_name);
+                final EditText tvCity = (EditText) view.findViewById(R.id.tv_city);
+                final EditText tvCounty = (EditText) view.findViewById(R.id.tv_county);
+                final EditText tvCrop = (EditText) view.findViewById(R.id.tv_crop);
+                final EditText tvArea = (EditText) view.findViewById(R.id.tv_area);
+                final EditText tvLevel = (EditText) view.findViewById(R.id.tv_level);
+                final EditText tvPlanYear = (EditText) view.findViewById(R.id.tv_plan_year);
+                final EditText tvIdentifiedYear = (EditText) view.findViewById(R.id.tv_identified_year);
+                final Button btnEdit = (Button) view.findViewById(R.id.btn_edit);
+
+
+                btnEdit.setOnClickListener(new View.OnClickListener()
+                {
+                    @Override
+                    public void onClick(View v)
+                    {
+
+                            lgq.name = tvName.getText().toString().trim();
+                            lgq.city = tvCity.getText().toString().trim();
+                            lgq.county = tvCounty.getText().toString().trim();
+                            lgq.crop = tvCrop.getText().toString().trim();
+                            try
+                            {
+                                lgq.area = Double.parseDouble(tvArea.getText().toString().trim());
+                            }
+                            catch (Exception e)
+                            {
+
+                            }
+
+                            lgq.level = tvLevel.getText().toString().trim();
+                            lgq.planYear = tvPlanYear.getText().toString().trim();
+                            lgq.identifiedYear = tvIdentifiedYear.getText().toString().trim();
+
+                            if(lgq.name.isEmpty() || lgq.city.isEmpty() || lgq.county.isEmpty())
+                            {
+                                Toast.makeText(MainActivity.this, "请输入粮功区名称、城市名称、县市区名称", Toast.LENGTH_LONG).show();
+                                return;
+                            }
+
+                        alertDialog.dismiss();
+
+                    }
+                });
+
+                alertDialog.show();
+            }
+        });
+
+
+        mBtnManualLocate = (Button) findViewById(R.id.btn_locate_manual);
+        mBtnManualLocate.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
                 MyLocationData loc = mBaiduMap.getLocationData();
                 mBaiduMap.setMapStatus(MapStatusUpdateFactory.newLatLng(new LatLng(loc.latitude, loc.longitude)));
 
                 addMarker(new LatLng(loc.latitude, loc.longitude), "123");
             }
         });
+
     }
 
     private void doSearchAndAddLgq()

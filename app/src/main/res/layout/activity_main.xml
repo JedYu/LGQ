@@ -1,9 +1,9 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              xmlns:tools="http://schemas.android.com/tools"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent"
-              android:orientation="horizontal"
-              tools:context=".MainActivity">
+             xmlns:tools="http://schemas.android.com/tools"
+             android:layout_width="match_parent"
+             android:layout_height="match_parent"
+             android:orientation="horizontal"
+             tools:context=".MainActivity">
 
 
     <com.baidu.mapapi.map.MapView
@@ -16,9 +16,9 @@
         android:id="@+id/ll_search_list"
         android:layout_width="240dp"
         android:layout_height="match_parent"
+        android:background="#EEE"
         android:orientation="horizontal"
-        android:visibility="gone"
-        android:background="#EEE">
+        android:visibility="gone">
 
         <ListView
             android:id="@+id/lv_counties"
@@ -37,22 +37,20 @@
     </LinearLayout>
 
 
-
-
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_gravity="right"
         android:orientation="vertical"
-        android:padding="16dp"
-        android:layout_gravity="right">
+        android:padding="16dp">
 
 
         <Button
             android:id="@+id/btn_search"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:drawableLeft="@drawable/icon_search"
             android:background="@drawable/d_btn_background"
+            android:drawableLeft="@drawable/icon_search"
             android:padding="8dp"
             android:text="查找"/>
 
@@ -60,11 +58,47 @@
             android:id="@+id/btn_new_polygon"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:drawableLeft="@drawable/icon_new_polygion"
             android:background="@drawable/d_btn_background"
+            android:drawableLeft="@drawable/icon_new_polygion"
             android:padding="8dp"
             android:text="创建"/>
 
+    </LinearLayout>
+
+    <LinearLayout
+
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="right|bottom"
+        android:padding="16dp">
+
+        <Button
+            android:id="@+id/btn_complete"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/d_btn_background"
+            android:drawableLeft="@drawable/icon_complete"
+            android:padding="8dp"
+            android:text="完成"/>
+
+
+        <Button
+            android:id="@+id/btn_cancel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/d_btn_background"
+            android:drawableLeft="@drawable/icon_cancel"
+            android:padding="8dp"
+            android:text="退出"/>
+
+        <Button
+            android:id="@+id/btn_locate_manual"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/d_btn_background"
+            android:drawableLeft="@drawable/icon_locate_manual"
+            android:padding="8dp"
+            android:text="打点"/>
     </LinearLayout>
 
 </FrameLayout>
