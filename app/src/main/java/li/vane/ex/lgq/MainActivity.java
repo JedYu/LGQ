@@ -55,6 +55,7 @@ import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 
 import li.vane.ex.lgq.adapter.LGQAdapter;
@@ -78,9 +79,13 @@ public class MainActivity extends ActionBarActivity implements BDLocationListene
     private MenuAdapter mCountiesAdapter;
     private MenuAdapter mLevelsAdapter;
     private LinearLayout mSearchList;
+    private LinearLayout mMainToolbar;
+    private LinearLayout mLocateToolbar;
     private Button mBtnSearch;
     private Button mBtnNewPolygon;
     private Button mBtnManualLocate;
+    private Button mBtnLocateCancel;
+    private Button mBtnLocateComplete;
 
     private int mMode = MODE_NORMAL;
 
@@ -89,6 +94,11 @@ public class MainActivity extends ActionBarActivity implements BDLocationListene
     private static final LatLng CENTER = new LatLng(29.912988, 121.478965);
     private String[] mCounties = {"全部", "海曙区", "江东区", "江北区", "北仑区", "镇海区", "鄞州区", "象山县", "宁海县", "余姚市", "慈溪市", "奉化市"};
     private String[] mLevels = {"全部", "省级", "市级", "县级", "后备"};
+
+
+    private LGQ mNewLgq;
+    private Polygon mNewLgqPolygon;
+    private ArrayList<LatLng> mNewLgqPoints;
 
 
     private BaiduMap.OnMapStatusChangeListener mMapStatusChangeListener = new BaiduMap.OnMapStatusChangeListener()
@@ -170,6 +180,8 @@ public class MainActivity extends ActionBarActivity implements BDLocationListene
 
     public void initWidget()
     {
+        mMainToolbar = (LinearLayout) findViewById(R.id.ll_main_toolbar);
+
         mBtnSearch = (Button) findViewById(R.id.btn_search);
         mBtnSearch.setOnClickListener(new View.OnClickListener()
         {
@@ -216,28 +228,33 @@ public class MainActivity extends ActionBarActivity implements BDLocationListene
                     public void onClick(View v)
                     {
 
-                            lgq.name = tvName.getText().toString().trim();
-                            lgq.city = tvCity.getText().toString().trim();
-                            lgq.county = tvCounty.getText().toString().trim();
-                            lgq.crop = tvCrop.getText().toString().trim();
-                            try
-                            {
-                                lgq.area = Double.parseDouble(tvArea.getText().toString().trim());
-                            }
-                            catch (Exception e)
-                            {
+                        lgq.name = tvName.getText().toString().trim();
+                        lgq.city = tvCity.getText().toString().trim();
+                        lgq.county = tvCounty.getText().toString().trim();
+                        lgq.crop = tvCrop.getText().toString().trim();
+                        try
+                        {
+                            lgq.area = Double.parseDouble(tvArea.getText().toString().trim());
+                        }
+                        catch (Exception e)
+                        {
 
-                            }
+                        }
 
-                            lgq.level = tvLevel.getText().toString().trim();
-                            lgq.planYear = tvPlanYear.getText().toString().trim();
-                            lgq.identifiedYear = tvIdentifiedYear.getText().toString().trim();
+                        lgq.level = tvLevel.getText().toString().trim();
+                        lgq.planYear = tvPlanYear.getText().toString().trim();
+                        lgq.identifiedYear = tvIdentifiedYear.getText().toString().trim();
 
-                            if(lgq.name.isEmpty() || lgq.city.isEmpty() || lgq.county.isEmpty())
-                            {
-                                Toast.makeText(MainActivity.this, "请输入粮功区名称、城市名称、县市区名称", Toast.LENGTH_LONG).show();
-                                return;
-                            }
+                        if (lgq.name.isEmpty() || lgq.city.isEmpty() || lgq.county.isEmpty())
+                        {
+                            Toast.makeText(MainActivity.this, "请输入粮功区名称、城市名称、县市区名称", Toast.LENGTH_LONG).show();
+                            return;
+                        }
+
+                        enterLocateMode();
+
+                        mNewLgq = lgq;
+                        mNewLgqPoints = new ArrayList<LatLng>();
 
                         alertDialog.dismiss();
 
@@ -255,19 +272,85 @@ public class MainActivity extends ActionBarActivity implements BDLocationListene
             @Override
             public void onClick(View v)
             {
+
+                mLocationClient.requestLocation();
                 MyLocationData loc = mBaiduMap.getLocationData();
                 if (null != loc)
                 {
+                    if (null == mNewLgqPoints)
+                    {
+                        mNewLgqPoints = new ArrayList<LatLng>();
+                    }
                     mBaiduMap.setMapStatus(MapStatusUpdateFactory.newLatLng(new LatLng(loc.latitude, loc.longitude)));
-                    addMarker(new LatLng(loc.latitude, loc.longitude), "123");
+
+//                    double lat = loc.latitude;
+//                    double lng = loc.longitude;
+
+                    double lat = loc.latitude + 0.001*mNewLgqPoints.size();
+                    double lng = loc.longitude + 0.001*(mNewLgqPoints.size()%2);
+
+
+                    addMarker(new LatLng(lat, lng), String.valueOf(mNewLgqPoints.size() + 1));
+                    mNewLgqPoints.add(new LatLng(lat, lng));
+                    if (mNewLgqPoints.size() > 2)
+                    {
+                        if (mNewLgqPolygon != null)
+                        {
+                            mNewLgqPolygon.remove();
+                            mNewLgqPolygon = null;
+                        }
+
+                        OverlayOptions polygonOption = new PolygonOptions()
+                                .points(mNewLgqPoints)
+                                .stroke(new Stroke(3, 0xEE00FF00))
+                                .fillColor(0xEEFFFF00);
+
+                        mNewLgqPolygon = (Polygon) mBaiduMap.addOverlay(polygonOption);
+
+                    }
                 }
                 else
                 {
+                    Toast.makeText(MainActivity.this, "还未获取到GPS信号，请到空旷地区稍后再试", Toast.LENGTH_LONG).show();
+                }
+            }
+        });
+
+        mBtnLocateCancel = (Button) findViewById(R.id.btn_cancel);
+        mBtnLocateCancel.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View view)
+            {
+                exitLocateMode();
+                mNewLgq = null;
+                mNewLgqPoints= null;
+            }
+        });
+
+        mBtnLocateComplete = (Button) findViewById(R.id.btn_complete);
+        mBtnLocateComplete.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View view)
+            {
+                exitLocateMode();
+                if (null != mNewLgq && null != mNewLgqPoints)
+                {
+                    mNewLgq.save();
+
+                    for(LatLng ll:mNewLgqPoints)
+                    {
+                        PolygonPoint latlng = new PolygonPoint(ll.latitude, ll.longitude, mNewLgq);
+                        latlng.save();
+                    }
 
                 }
             }
         });
 
+        mLocateToolbar = (LinearLayout) findViewById(R.id.ll_locate);
+        mLocateToolbar.setVisibility(View.GONE);
     }
 
     private void doSearchAndAddLgq()
@@ -346,7 +429,7 @@ public class MainActivity extends ActionBarActivity implements BDLocationListene
         LocationClientOption option = new LocationClientOption();
         option.setLocationMode(LocationClientOption.LocationMode.Device_Sensors);// 设置定位模式
         option.setCoorType("bd09ll");// 返回的定位结果是百度经纬度,默认值gcj02
-        option.setScanSpan(60000);// 设置发起定位请求的间隔时间为5000ms
+        option.setScanSpan(5000);// 设置发起定位请求的间隔时间为5000ms
         option.setIsNeedAddress(true);// 返回的定位结果包含地址信息
         option.setNeedDeviceDirect(true);// 返回的定位结果包含手机机头的方向
         mLocationClient.setLocOption(option);
@@ -577,7 +660,7 @@ public class MainActivity extends ActionBarActivity implements BDLocationListene
                 LatLng ll = new LatLng(points.get(i).lat, points.get(i).lng);
                 pts.add(ll);
 
-                addMarker(ll, i + 1 + "");
+                //addMarker(ll, i + 1 + "");
             }
 
             OverlayOptions polygonOption = new PolygonOptions()
@@ -751,5 +834,23 @@ public class MainActivity extends ActionBarActivity implements BDLocationListene
         mLocationClient.unRegisterLocationListener(mLocationListener);
         mLocationClient.stop();
 
+    }
+
+
+    private void enterLocateMode()
+    {
+        mMode = MODE_LOCATE;
+        mLocateToolbar.setVisibility(View.VISIBLE);
+        mMainToolbar.setVisibility(View.GONE);
+        mSearchList.setVisibility(View.GONE);
+    }
+
+    private void exitLocateMode()
+    {
+        mMode = MODE_NORMAL;
+        mLocateToolbar.setVisibility(View.GONE);
+        mMainToolbar.setVisibility(View.VISIBLE);
+
+        mBaiduMap.clear();
     }
 }
