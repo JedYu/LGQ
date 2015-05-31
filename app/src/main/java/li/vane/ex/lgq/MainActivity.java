@@ -66,6 +66,8 @@ import li.vane.ex.lgq.bean.PolygonPoint;
 public class MainActivity extends ActionBarActivity implements BDLocationListener
 {
     private static final String TAG = MainActivity.class.getSimpleName();
+    private static final int MODE_NORMAL = 0;
+    private static final int MODE_LOCATE = 1;
     private MapView mMapView = null;
     private BaiduMap mBaiduMap = null;
     public LocationClient mLocationClient = null;
@@ -79,6 +81,8 @@ public class MainActivity extends ActionBarActivity implements BDLocationListene
     private Button mBtnSearch;
     private Button mBtnNewPolygon;
     private Button mBtnManualLocate;
+
+    private int mMode = MODE_NORMAL;
 
     private List<Polygon> mLgqPolygons = new ArrayList<Polygon>();
 
@@ -125,10 +129,12 @@ public class MainActivity extends ActionBarActivity implements BDLocationListene
 
                 mBaiduMap.setMyLocationData(locData);
 
-
-//                LatLng ll = new LatLng(location.getLatitude(), location.getLongitude());
-//                MapStatusUpdate u = MapStatusUpdateFactory.newLatLng(ll);
-//                mBaiduMap.animateMapStatus(u);
+                if (mMode == MODE_LOCATE)
+                {
+                    LatLng ll = new LatLng(location.getLatitude(), location.getLongitude());
+                    MapStatusUpdate u = MapStatusUpdateFactory.newLatLng(ll);
+                    mBaiduMap.animateMapStatus(u);
+                }
             }
             else
             {
@@ -142,7 +148,6 @@ public class MainActivity extends ActionBarActivity implements BDLocationListene
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        SDKInitializer.initialize(getApplicationContext());
 
         mInflater = getLayoutInflater();
         setContentView(R.layout.activity_main);
@@ -251,9 +256,15 @@ public class MainActivity extends ActionBarActivity implements BDLocationListene
             public void onClick(View v)
             {
                 MyLocationData loc = mBaiduMap.getLocationData();
-                mBaiduMap.setMapStatus(MapStatusUpdateFactory.newLatLng(new LatLng(loc.latitude, loc.longitude)));
+                if (null != loc)
+                {
+                    mBaiduMap.setMapStatus(MapStatusUpdateFactory.newLatLng(new LatLng(loc.latitude, loc.longitude)));
+                    addMarker(new LatLng(loc.latitude, loc.longitude), "123");
+                }
+                else
+                {
 
-                addMarker(new LatLng(loc.latitude, loc.longitude), "123");
+                }
             }
         });
 
