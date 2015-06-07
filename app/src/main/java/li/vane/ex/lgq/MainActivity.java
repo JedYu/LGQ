@@ -1,6 +1,7 @@
 package li.vane.ex.lgq;
 
 import android.app.AlertDialog;
+import android.content.Intent;
 import android.content.res.AssetManager;
 import android.os.Bundle;
 import android.os.Handler;
@@ -164,7 +165,7 @@ public class MainActivity extends ActionBarActivity implements BDLocationListene
 
         mUIHandler = new Handler(getMainLooper());
         Log.d(TAG, "------onCreate------");
-        loadDBF();
+
         mMapView = (MapView) findViewById(R.id.map);
         mBaiduMap = mMapView.getMap();
 
@@ -283,11 +284,11 @@ public class MainActivity extends ActionBarActivity implements BDLocationListene
                     }
                     mBaiduMap.setMapStatus(MapStatusUpdateFactory.newLatLng(new LatLng(loc.latitude, loc.longitude)));
 
-//                    double lat = loc.latitude;
-//                    double lng = loc.longitude;
+                    double lat = loc.latitude;
+                    double lng = loc.longitude;
 
-                    double lat = loc.latitude + 0.001*mNewLgqPoints.size();
-                    double lng = loc.longitude + 0.001*(mNewLgqPoints.size()%2);
+//                    double lat = loc.latitude + 0.001*mNewLgqPoints.size();
+//                    double lng = loc.longitude + 0.001*(mNewLgqPoints.size()%2);
 
 
                     addMarker(new LatLng(lat, lng), String.valueOf(mNewLgqPoints.size() + 1));
@@ -337,6 +338,31 @@ public class MainActivity extends ActionBarActivity implements BDLocationListene
                 exitLocateMode();
                 if (null != mNewLgq && null != mNewLgqPoints)
                 {
+                    if (mNewLgq.level.isEmpty() || mNewLgq.level.startsWith("后备"))
+                    {
+                        mNewLgq.status = "待建";
+                    }
+                    else
+                    {
+                        mNewLgq.status = "已建";
+                    }
+
+                    if (!mNewLgq.planYear.isEmpty())
+                    {
+                        mNewLgq.beginYear = mNewLgq.planYear + "年2月";
+                    }
+                    if (!mNewLgq.identifiedYear.isEmpty())
+                    {
+                        try
+                        {
+                            mNewLgq.endYear = "" + (Integer.parseInt(mNewLgq.identifiedYear) - 1) + "年11月";
+                        }
+                        catch (Exception e)
+                        {
+
+                        }
+                    }
+
                     mNewLgq.save();
 
                     for(LatLng ll:mNewLgqPoints)
@@ -480,80 +506,10 @@ public class MainActivity extends ActionBarActivity implements BDLocationListene
                         }
 
 
-                        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(MainActivity.this);
-                        View view = mInflater.inflate(R.layout.layout_dialog_detail, null);
-                        dialogBuilder.setView(view);
+                        Intent intent = new Intent(MainActivity.this, InfomationActivity.class);
+                        intent.putExtra("id", id);
+                        startActivity(intent);
 
-                        final AlertDialog alertDialog = dialogBuilder.create();
-
-                        final EditText tvName = (EditText) view.findViewById(R.id.tv_name);
-                        tvName.setText(lgq.name);
-
-                        final EditText tvCity = (EditText) view.findViewById(R.id.tv_city);
-                        tvCity.setText(lgq.city);
-
-                        final EditText tvCounty = (EditText) view.findViewById(R.id.tv_county);
-                        tvCounty.setText(lgq.county);
-
-                        final EditText tvCrop = (EditText) view.findViewById(R.id.tv_crop);
-                        tvCrop.setText(lgq.crop);
-
-                        final EditText tvArea = (EditText) view.findViewById(R.id.tv_area);
-                        tvArea.setText(String.valueOf((int) (lgq.area)));
-
-                        final EditText tvLevel = (EditText) view.findViewById(R.id.tv_level);
-                        tvLevel.setText(lgq.level);
-
-                        final EditText tvPlanYear = (EditText) view.findViewById(R.id.tv_plan_year);
-                        tvPlanYear.setText(lgq.planYear);
-
-                        final EditText tvIdentifiedYear = (EditText) view.findViewById(R.id.tv_identified_year);
-                        tvIdentifiedYear.setText(lgq.identifiedYear);
-
-                        final Button btnEdit = (Button) view.findViewById(R.id.btn_edit);
-
-
-                        btnEdit.setOnClickListener(new View.OnClickListener()
-                        {
-                            @Override
-                            public void onClick(View v)
-                            {
-                                boolean enable = false;
-                                if (btnEdit.getText().equals("编辑"))
-                                {
-                                    enable = true;
-                                    btnEdit.setText("保存");
-                                }
-                                else
-                                {
-                                    enable = false;
-                                    btnEdit.setText("编辑");
-
-                                    lgq.name = tvName.getText().toString().trim();
-                                    lgq.city = tvCity.getText().toString().trim();
-                                    lgq.county = tvCounty.getText().toString().trim();
-                                    lgq.crop = tvCrop.getText().toString().trim();
-                                    lgq.area = Double.parseDouble(tvArea.getText().toString().trim());
-                                    lgq.level = tvLevel.getText().toString().trim();
-                                    lgq.planYear = tvPlanYear.getText().toString().trim();
-                                    lgq.identifiedYear = tvIdentifiedYear.getText().toString().trim();
-                                    lgq.save();
-
-                                    alertDialog.dismiss();
-                                }
-
-                                tvName.setEnabled(enable);
-                                tvCity.setEnabled(enable);
-                                tvCounty.setEnabled(enable);
-                                tvCrop.setEnabled(enable);
-                                tvArea.setEnabled(enable);
-                                tvLevel.setEnabled(enable);
-                                tvPlanYear.setEnabled(enable);
-                                tvIdentifiedYear.setEnabled(enable);
-                            }
-                        });
-
-                        alertDialog.show();
                         break;
                     }
                 }
@@ -689,95 +645,9 @@ public class MainActivity extends ActionBarActivity implements BDLocationListene
                 .execute();
     }
 
-    private void loadDBF()
-    {
-        LGQ lgq = LGQ.load(LGQ.class, 1);
-        if (null != lgq)
-        {
-            return;
-        }
 
 
-        AssetManager am = getAssets();
-        InputStream inputStream;
-        try
-        {
 
-            inputStream = am.open("lgq.dbf");
-        }
-        catch (IOException e)
-        {
-            e.printStackTrace();
-            return;
-        }
-        File dbf = createFileFromInputStream(inputStream);
-
-        List<Object> streets = DbfProcessor.loadData(dbf, new DbfRowMapper<Object>()
-        {
-            @Override
-            public Object mapRow(Object[] row)
-            {
-                LGQ lgq = LGQ.load(LGQ.class, ((Double) row[0]).intValue());
-
-                if (lgq == null)
-                {
-                    try
-                    {
-                        lgq = new LGQ();
-                        lgq.city = new String((byte[]) row[1], "GBK").trim();
-                        lgq.county = new String((byte[]) row[2], "GBK").trim();
-                        lgq.name = new String((byte[]) row[3], "GBK").trim();
-                        lgq.level = new String((byte[]) row[4], "GBK").trim();
-                        lgq.area = (double) (Float) row[5];
-                        lgq.crop = new String((byte[]) row[6], "GBK").trim();
-                        lgq.planYear = String.valueOf((int) (double) row[7]);
-                        lgq.identifiedYear = String.valueOf((int) (double) row[8]);
-                        lgq.save();
-                    }
-                    catch (UnsupportedEncodingException e)
-                    {
-                        e.printStackTrace();
-                        return null;
-                    }
-                }
-
-                LatLng ll = new LatLng((double) (Float) row[11], (double) (Float) row[10]);
-                LatLng bdll = new CoordinateConverter().from(CoordinateConverter.CoordType.GPS).coord(ll).convert();
-                PolygonPoint latlng = new PolygonPoint(bdll.latitude, bdll.longitude, lgq);
-                latlng.save();
-
-                return null;
-            }
-        });
-    }
-
-    private File createFileFromInputStream(InputStream inputStream)
-    {
-
-        try
-        {
-            File f = new File("/mnt/sdcard/l.dbf");
-            OutputStream outputStream = new FileOutputStream(f);
-            byte buffer[] = new byte[1024];
-            int length;
-
-            while ((length = inputStream.read(buffer)) > 0)
-            {
-                outputStream.write(buffer, 0, length);
-            }
-
-            outputStream.close();
-            inputStream.close();
-
-            return f;
-        }
-        catch (IOException e)
-        {
-            //Logging exception
-        }
-
-        return null;
-    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu)

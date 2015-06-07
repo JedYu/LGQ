@@ -16,7 +16,7 @@ import java.io.OutputStream;
 public class AssetUtil
 {
 
-    public static void copyAssets(Context context, String assetDir, String dstDir)
+    public static String[] copyAssets(Context context, String assetDir, String dstDir)
     {
         AssetManager assetManager = context.getAssets();
         String[] files = null;
@@ -92,6 +92,8 @@ public class AssetUtil
                 }
             }
         }
+
+        return files;
     }
 
     private static void copyFile(InputStream in, OutputStream out) throws IOException

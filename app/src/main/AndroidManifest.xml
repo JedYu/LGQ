@@ -48,13 +48,17 @@
             android:label="@string/app_name"
             android:screenOrientation="landscape" >
         </activity>
+
         <service
             android:name="com.baidu.location.f"
             android:enabled="true"
             android:process=":remote" >
         </service>
 
-
+        <activity
+            android:name=".InfomationActivity"
+            android:label="@string/title_activity_infomation" >
+        </activity>
     </application>
 
 </manifest>
