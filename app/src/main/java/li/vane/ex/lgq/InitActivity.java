@@ -3,12 +3,15 @@ package li.vane.ex.lgq;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.res.AssetManager;
+import android.media.Image;
 import android.os.Environment;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.baidu.mapapi.map.offline.MKOfflineMap;
@@ -43,9 +46,18 @@ public class InitActivity extends ActionBarActivity
         });
         OfflineMap.importOfflineData();
 
-        Intent intent = new Intent(InitActivity.this, MainActivity.class);
-        startActivity(intent);
-        finish();
+        ImageView enter = (ImageView) findViewById(R.id.btn_lgq_enter);
+        enter.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View view)
+            {
+                Intent intent = new Intent(InitActivity.this, MainActivity.class);
+                startActivity(intent);
+                finish();
+            }
+        });
+
     }
 
     private void copyOfflineMap()
