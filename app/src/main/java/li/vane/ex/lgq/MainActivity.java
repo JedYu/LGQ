@@ -2,7 +2,6 @@ package li.vane.ex.lgq;
 
 import android.app.AlertDialog;
 import android.content.Intent;
-import android.content.res.AssetManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.ActionBarActivity;
@@ -25,7 +24,6 @@ import com.baidu.location.BDLocation;
 import com.baidu.location.BDLocationListener;
 import com.baidu.location.LocationClient;
 import com.baidu.location.LocationClientOption;
-import com.baidu.mapapi.SDKInitializer;
 import com.baidu.mapapi.map.BaiduMap;
 import com.baidu.mapapi.map.BitmapDescriptor;
 import com.baidu.mapapi.map.BitmapDescriptorFactory;
@@ -40,23 +38,12 @@ import com.baidu.mapapi.map.Polygon;
 import com.baidu.mapapi.map.PolygonOptions;
 import com.baidu.mapapi.map.Stroke;
 import com.baidu.mapapi.model.LatLng;
-import com.baidu.mapapi.utils.CoordinateConverter;
 import com.baidu.mapapi.utils.SpatialRelationUtil;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
-import org.jamel.dbf.processor.DbfProcessor;
-import org.jamel.dbf.processor.DbfRowMapper;
-
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
 
 import li.vane.ex.lgq.adapter.LGQAdapter;
@@ -189,6 +176,7 @@ public class MainActivity extends ActionBarActivity implements BDLocationListene
             @Override
             public void onClick(View v)
             {
+
                 if (mSearchList.getVisibility() != View.VISIBLE)
                 {
                     mSearchList.setVisibility(View.VISIBLE);
@@ -325,7 +313,7 @@ public class MainActivity extends ActionBarActivity implements BDLocationListene
             {
                 exitLocateMode();
                 mNewLgq = null;
-                mNewLgqPoints= null;
+                mNewLgqPoints = null;
             }
         });
 
@@ -365,7 +353,7 @@ public class MainActivity extends ActionBarActivity implements BDLocationListene
 
                     mNewLgq.save();
 
-                    for(LatLng ll:mNewLgqPoints)
+                    for (LatLng ll : mNewLgqPoints)
                     {
                         PolygonPoint latlng = new PolygonPoint(ll.latitude, ll.longitude, mNewLgq);
                         latlng.save();
@@ -435,10 +423,19 @@ public class MainActivity extends ActionBarActivity implements BDLocationListene
         return query.orderBy("id ASC").execute();
     }
 
+
+
+
+
+
+
+
+
     private void initMap()
     {
         mMapView.showZoomControls(false);
         mMapView.setKeepScreenOn(true);
+
         mBaiduMap.setMyLocationEnabled(true);
         // 设置中心点
         mBaiduMap.setMapStatus(MapStatusUpdateFactory.newLatLng(new LatLng(30.419, 120.300)));
@@ -452,14 +449,22 @@ public class MainActivity extends ActionBarActivity implements BDLocationListene
         mLocationClient = new LocationClient(this);
         mLocationClient.registerLocationListener(mLocationListener);
 
-        LocationClientOption option = new LocationClientOption();
-        option.setLocationMode(LocationClientOption.LocationMode.Device_Sensors);// 设置定位模式
-        option.setCoorType("bd09ll");// 返回的定位结果是百度经纬度,默认值gcj02
-        option.setScanSpan(5000);// 设置发起定位请求的间隔时间为5000ms
-        option.setIsNeedAddress(true);// 返回的定位结果包含地址信息
-        option.setNeedDeviceDirect(true);// 返回的定位结果包含手机机头的方向
-        mLocationClient.setLocOption(option);
-        mLocationClient.start();
+        new Thread(new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                LocationClientOption option = new LocationClientOption();
+                option.setLocationMode(LocationClientOption.LocationMode.Device_Sensors);// 设置定位模式
+                option.setCoorType("bd09ll");// 返回的定位结果是百度经纬度,默认值gcj02
+                option.setScanSpan(5000);// 设置发起定位请求的间隔时间为5000ms
+                option.setIsNeedAddress(true);// 返回的定位结果包含地址信息
+                option.setNeedDeviceDirect(true);// 返回的定位结果包含手机机头的方向
+                mLocationClient.setLocOption(option);
+                mLocationClient.start();
+            }
+        }).start();
+
 
         MapStatusUpdate u = MapStatusUpdateFactory.newLatLng(CENTER);
         mBaiduMap.animateMapStatus(u);
@@ -635,7 +640,6 @@ public class MainActivity extends ActionBarActivity implements BDLocationListene
 
     }
 
-
     public List<LGQ> getAll()
     {
 
@@ -644,9 +648,6 @@ public class MainActivity extends ActionBarActivity implements BDLocationListene
                 .orderBy("id ASC")
                 .execute();
     }
-
-
-
 
 
     @Override
@@ -668,6 +669,7 @@ public class MainActivity extends ActionBarActivity implements BDLocationListene
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings)
         {
+
             return true;
         }
 

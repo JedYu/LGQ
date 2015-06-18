@@ -1,17 +1,13 @@
 package li.vane.ex.lgq;
 
 import android.content.Intent;
-import android.content.pm.ApplicationInfo;
 import android.content.res.AssetManager;
-import android.media.Image;
+import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.v7.app.ActionBarActivity;
-import android.os.Bundle;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -104,8 +100,6 @@ public class InitActivity extends ActionBarActivity
 
     private void copyOfflineMap()
     {
-        AssetManager am = getAssets();
-        InputStream inputStream;
 
         if (!Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED))
         {
